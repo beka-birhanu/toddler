@@ -142,6 +142,9 @@ All status codes extend standard HTTP semantics plus one more digit (**4-digit c
 | 404 Not Found   | 4040 - 4049                                     |
 |                | - 4040: NotFound                               |
 |                | - 4041: NotFoundResource                       |
+| 409 Conflict   |  4090 - 4099                                | 
+|                | - 4090: Conflict                             |
+|                | - 4090: ConflictDuplicateData |
 | 500 Server Error| 5000 - 5009                                     |
 |                | - 5000: ServerError                            |
 |                | - 5001: ServerErrorDatabase                    |

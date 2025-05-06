@@ -53,6 +53,12 @@ const (
 	NotFoundResource                          // Resource not found
 )
 
+// Conflict-realted errors(4040 - 4049)
+const (
+	Conflict              StatusCode = 4090 + iota // Generic conflict
+	ConflictDuplicateData                          // Conflict Duplicate Data
+)
+
 // Server-related errors (5000 - 5009)
 const (
 	ServerError                     StatusCode = 5000 + iota // Generic server error
@@ -79,6 +85,8 @@ var statusCodeMap = map[StatusCode]string{
 	ForbiddenOnlyOwners:             "Forbidden_OnlyOwners",
 	NotFound:                        "NotFound",
 	NotFoundResource:                "NotFound_Resource",
+	Conflict:                        "Conflict",
+	ConflictDuplicateData:           "Conflict_DuplicateData",
 	ServerError:                     "ServerError",
 	ServerErrorDatabase:             "ServerError_Database",
 	ServerErrorServiceCommunication: "ServerError_ServiceCommunication",
