@@ -9,9 +9,10 @@ import (
 
 func TestError_Error(t *testing.T) {
 	err := &error.Error{
-		StatusCode:     status.BadRequestMissingField,
-		PublicMessage:  "Missing required field",
-		ServiceMessage: "Field 'username' is missing in the payload",
+		PublicStatusCode:  status.BadRequestMissingField,
+		ServiceStatusCode: status.BadRequestMissingField,
+		PublicMessage:     "Missing required field",
+		ServiceMessage:    "Field 'username' is missing in the payload",
 		PublicMetaData: map[string]string{
 			"field": "username",
 		},
@@ -20,7 +21,7 @@ func TestError_Error(t *testing.T) {
 		},
 	}
 
-	expected := "{status: BadRequest_MissingField (4001), publicMessage: 'Missing required field', serviceMessage: 'Field 'username' is missing in the payload', publicMetaData: {field: 'username'}, serviceMetaData: {requestId: 'abc123'}}"
+	expected := "{publicStatus: BadRequest_MissingField (4001), serviceStatus: BadRequest_MissingField (4001), publicMessage: 'Missing required field', serviceMessage: 'Field 'username' is missing in the payload', publicMetaData: {field: 'username'}, serviceMetaData: {requestId: 'abc123'}}"
 
 	actual := err.Error()
 

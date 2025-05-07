@@ -24,8 +24,9 @@ func FromDBError(err error, entityName string) *Error {
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return &Error{
-			StatusCode:    status.NotFoundResource,
-			PublicMessage: fmt.Sprintf("%s not found", entityName),
+			PublicStatusCode:  status.NotFoundResource,
+			ServiceStatusCode: status.NotFoundResource,
+			PublicMessage:     fmt.Sprintf("%s not found", entityName),
 			PublicMetaData: map[string]string{
 				"error_type":   "Data not found",
 				"resourceName": entityName,
@@ -44,8 +45,9 @@ func FromDBError(err error, entityName string) *Error {
 		switch pqErr.Code {
 		case postgresErrUniqueViolation:
 			return &Error{
-				StatusCode:    status.ConflictDuplicateData,
-				PublicMessage: fmt.Sprintf("A %s with the same value already exists", entityName),
+				PublicStatusCode:  status.ConflictDuplicateData,
+				ServiceStatusCode: status.ConflictDuplicateData,
+				PublicMessage:     fmt.Sprintf("A %s with the same value already exists", entityName),
 				PublicMetaData: map[string]string{
 					"error_type":   "Data duplication",
 					"resourceName": entityName,
@@ -63,8 +65,9 @@ func FromDBError(err error, entityName string) *Error {
 			}
 		case postgresErrForeignKey:
 			return &Error{
-				StatusCode:    status.BadRequest,
-				PublicMessage: fmt.Sprintf("%s has invalid reference to related data", entityName),
+				PublicStatusCode:  status.BadRequest,
+				ServiceStatusCode: status.BadRequest,
+				PublicMessage:     fmt.Sprintf("%s has invalid reference to related data", entityName),
 				PublicMetaData: map[string]string{
 					"error_type":   "Foreign key violation",
 					"resourceName": entityName,
@@ -82,8 +85,9 @@ func FromDBError(err error, entityName string) *Error {
 			}
 		case postgresErrNotNullViolation:
 			return &Error{
-				StatusCode:    status.BadRequest,
-				PublicMessage: fmt.Sprintf("%s is missing required fields", entityName),
+				PublicStatusCode:  status.BadRequest,
+				ServiceStatusCode: status.BadRequest,
+				PublicMessage:     fmt.Sprintf("%s is missing required fields", entityName),
 				PublicMetaData: map[string]string{
 					"error_type":   "Missing field",
 					"resourceName": entityName,
@@ -101,8 +105,9 @@ func FromDBError(err error, entityName string) *Error {
 			}
 		case postgresErrCheckViolation:
 			return &Error{
-				StatusCode:    status.BadRequest,
-				PublicMessage: fmt.Sprintf("%s failed validation rules", entityName),
+				PublicStatusCode:  status.BadRequest,
+				ServiceStatusCode: status.BadRequest,
+				PublicMessage:     fmt.Sprintf("%s failed validation rules", entityName),
 				PublicMetaData: map[string]string{
 					"error_type":   "Constraint check failed",
 					"resourceName": entityName,
@@ -121,8 +126,9 @@ func FromDBError(err error, entityName string) *Error {
 		default:
 			// Unhandled DB errors — treat as server errors
 			return &Error{
-				StatusCode:    status.ServerErrorDatabase,
-				PublicMessage: "A server error occurred. Please try again later.",
+				PublicStatusCode:  status.ServerError,
+				ServiceStatusCode: status.ServerErrorDatabase,
+				PublicMessage:     "A server error occurred. Please try again later.",
 				PublicMetaData: map[string]string{
 					"error_type":   "Internal database error",
 					"resourceName": entityName,
@@ -141,8 +147,9 @@ func FromDBError(err error, entityName string) *Error {
 
 	// Fallback: truly unknown error — treat as internal error
 	return &Error{
-		StatusCode:    status.ServerErrorDatabase,
-		PublicMessage: "A server error occurred. Please try again later.",
+		PublicStatusCode:  status.ServerError,
+		ServiceStatusCode: status.ServerErrorDatabase,
+		PublicMessage:     "A server error occurred. Please try again later.",
 		PublicMetaData: map[string]string{
 			"error_type":   "Unknown server error",
 			"resourceName": entityName,

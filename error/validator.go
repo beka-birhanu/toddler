@@ -66,9 +66,10 @@ func FromValidationErrors(err error) *Error {
 	if !ok {
 		// Not a validator error, treat as internal error
 		return &Error{
-			StatusCode:     status.BadRequest,
-			PublicMessage:  "Invalid input provided",
-			ServiceMessage: fmt.Sprintf("Unknown validation error: %v", err),
+			PublicStatusCode:  status.BadRequest,
+			ServiceStatusCode: status.BadRequest,
+			PublicMessage:     "Invalid input provided",
+			ServiceMessage:    fmt.Sprintf("Unknown validation error: %v", err),
 			PublicMetaData: map[string]string{
 				"error_type": "Validation",
 			},
@@ -107,9 +108,10 @@ func FromValidationErrors(err error) *Error {
 	}
 
 	return &Error{
-		StatusCode:     finalStatus,
-		PublicMessage:  "Invalid input in one or more fields",
-		ServiceMessage: strings.Join(serviceMessages, "; "),
+		PublicStatusCode:  finalStatus,
+		ServiceStatusCode: finalStatus,
+		PublicMessage:     "Invalid input in one or more fields",
+		ServiceMessage:    strings.Join(serviceMessages, "; "),
 		PublicMetaData: map[string]string{
 			"error_type": "Validation",
 			"fields":     strings.Join(fields, ", "),

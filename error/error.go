@@ -17,20 +17,23 @@ import (
 type ErrorTypes string
 
 type Error struct {
-	StatusCode      status.StatusCode
-	PublicMessage   string
-	ServiceMessage  string
-	PublicMetaData  map[string]string
-	ServiceMetaData map[string]string
+	PublicStatusCode  status.StatusCode
+	ServiceStatusCode status.StatusCode
+	PublicMessage     string
+	ServiceMessage    string
+	PublicMetaData    map[string]string
+	ServiceMetaData   map[string]string
 }
 
 // Error implements the error interface.
 // Return a formatted string with status code, messages, and metadata
 func (e *Error) Error() string {
 	return fmt.Sprintf(
-		"{status: %s (%d), publicMessage: '%s', serviceMessage: '%s', publicMetaData: %s, serviceMetaData: %s}",
-		status.GetErrorName(e.StatusCode),
-		e.StatusCode,
+		"{publicStatus: %s (%d), serviceStatus: %s (%d), publicMessage: '%s', serviceMessage: '%s', publicMetaData: %s, serviceMetaData: %s}",
+		status.GetErrorName(e.PublicStatusCode),
+		e.PublicStatusCode,
+		status.GetErrorName(e.ServiceStatusCode),
+		e.ServiceStatusCode,
 		e.PublicMessage,
 		e.ServiceMessage,
 		formatMetaData(e.PublicMetaData),
@@ -53,5 +56,5 @@ func formatMetaData(metaData map[string]string) string {
 }
 
 func (e *Error) NeutralizeOverDetailedStatus() {
-	e.StatusCode = status.SuppressOverDetail(e.StatusCode)
+	e.PublicStatusCode = status.SuppressOverDetail(e.PublicStatusCode)
 }
