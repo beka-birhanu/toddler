@@ -149,3 +149,84 @@ All status codes extend standard HTTP semantics plus one more digit (**4-digit c
 |                | - 5000: ServerError                            |
 |                | - 5001: ServerErrorDatabase                    |
 |                | - 5002: ServerErrorServiceCommunication        |
+
+## Error mappers
+It includes error mapper for postgresql and validator erros. 
+
+### `FromDBError(err error, entityName string) *error.Error`
+
+**Purpose:**
+Maps low-level PostgreSQL errors into structured, application-specific error types that include detailed status codes, public-safe messages, and internal metadata for debugging.
+
+#### Handles:
+
+| Database Error Type                    | Mapped Application Error                |
+| -------------------------------------- | --------------------------------------- |
+| `sql.ErrNoRows`                        | `status.NotFoundResource`               |
+| PostgreSQL Unique Constraint (`23505`) | `status.ConflictDuplicateData`          |
+| Foreign Key Violation (`23503`)        | `status.BadRequest` (invalid reference) |
+| Not Null Violation (`23502`)           | `status.BadRequest` (missing field)     |
+| Check Constraint (`23514`)             | `status.BadRequest` (failed validation) |
+| Unhandled PostgreSQL Error             | `status.ServerErrorDatabase`            |
+| Unknown Errors                         | `status.ServerErrorDatabase`            |
+
+## `FromValidationErrors` — Structured Validation Error Handler
+
+```go
+func FromValidationErrors(err error) *error.Error
+```
+
+### 📖 Description
+
+`FromValidationErrors` converts `go-playground/validator` validation errors into a structured application-level error (`*error.Error`). It makes it easy to return clear and helpful feedback to users while preserving rich diagnostic details for logging and debugging.
+
+### Usage Example
+
+```go
+type SignupInput struct {
+    Email string `validate:"required,email"`
+    Age   int    `validate:"required,gte=18"`
+}
+
+func ValidateSignupInput(input SignupInput) *error.Error {
+    err := validator.New().Struct(input)
+    return error.FromValidationErrors(err)
+}
+```
+
+### 🧭 Tag-to-Status Mapping
+
+| Category          | Tags                                  | Status Code                        |
+| ----------------- | ------------------------------------- | ---------------------------------- |
+| Required          | `required`, `required_with`, ...      | `status.BadRequestMissingField`    |
+| Format / Pattern  | `email`, `uuid`, `json`, ...          | `status.BadRequestInvalidFormat`   |
+| Range / Length    | `min`, `max`, `len`, `gt`, `lte`, ... | `status.BadRequestOutOfRange`      |
+| Enum / One of     | `oneof`                               | `status.BadRequestEnumViolation`   |
+| Value Constraints | `eq`, `ne`, `unique`, ...             | `status.BadRequestInvalidValue`    |
+| Unknown           | Anything not explicitly mapped        | `status.BadRequest` |
+
+---
+
+### Output Example
+
+```json
+{
+  "PublicStatusCode": 4001,
+  "PublicMessage": "Invalid input in one or more fields",
+  "PublicMetaData": {
+    "error_type": "Validation",
+    "fields": "Email, Age",
+    "failures": "Email: Email must be a valid email; Age: Age must be gte 18"
+  },
+  "ServiceMetaData": {
+    "error_type": "ValidatorFieldErrors",
+    "fields": "Email, Age",
+    "details": {
+      "Emailreason": "email",
+      "Emailstatus_code": "4003",
+      "Agereason": "gte",
+      "Agestatus_code": "4004"
+    }
+  }
+}
+```
