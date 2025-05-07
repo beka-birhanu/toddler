@@ -59,7 +59,7 @@ var rangeTags = map[string]status.StatusCode{
 	"lte": status.BadRequestOutOfRange,
 }
 
-var fallbackStatusCode = status.BadRequestFieldConstraint
+var fallbackStatusCode = status.BadRequest
 
 func FromValidationErrors(err error) *Error {
 	ve, ok := err.(validator.ValidationErrors)

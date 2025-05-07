@@ -26,7 +26,7 @@ func FromDBError(err error, entityName string) *Error {
 		return &Error{
 			PublicStatusCode:  status.NotFoundResource,
 			ServiceStatusCode: status.NotFoundResource,
-			PublicMessage:     fmt.Sprintf("%s not found", entityName),
+			PublicMessage:     fmt.Sprintf("Either %s does not exist or you don't have access", entityName),
 			PublicMetaData: map[string]string{
 				"error_type":   "Data not found",
 				"resourceName": entityName,
