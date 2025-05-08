@@ -62,6 +62,10 @@ var rangeTags = map[string]status.StatusCode{
 var fallbackStatusCode = status.BadRequest
 
 func FromValidationErrors(err error) *Error {
+	if err == nil {
+		return nil
+	}
+
 	ve, ok := err.(validator.ValidationErrors)
 	if !ok {
 		// Not a validator error, treat as internal error
